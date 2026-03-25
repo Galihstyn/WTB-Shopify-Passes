@@ -48,27 +48,45 @@ const safeNum = (val, fallback = 0) => {
 };
 
 const hexToRgb = (hex) => {
-  hex = (hex || '#000000').trim();
-  if (!hex.startsWith('#')) hex = '#' + hex;
-  if (hex.length === 4) {
-    hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+  let normalized = (hex || '#000000').trim();
+
+  if (!normalized.startsWith('#')) normalized = '#' + normalized;
+
+  if (normalized.length === 4) {
+    normalized =
+      '#' +
+      normalized[1] + normalized[1] +
+      normalized[2] + normalized[2] +
+      normalized[3] + normalized[3];
   }
+
+  if (!/^#[0-9A-Fa-f]{6}$/.test(normalized)) {
+    return { r: 0, g: 0, b: 0 };
+  }
+
   return {
-    r: parseInt(hex.substring(1, 3), 16) || 0,
-    g: parseInt(hex.substring(3, 5), 16) || 0,
-    b: parseInt(hex.substring(5, 7), 16) || 0
+    r: parseInt(normalized.substring(1, 3), 16),
+    g: parseInt(normalized.substring(3, 5), 16),
+    b: parseInt(normalized.substring(5, 7), 16),
   };
 };
 
 const hexToHsv = (hex) => {
   let { r, g, b } = hexToRgb(hex);
-  r /= 255; g /= 255; b /= 255;
+
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
   let h, s, v = max;
   const d = max - min;
+
   s = max === 0 ? 0 : d / max;
-  if (max === min) { h = 0; }
-  else {
+
+  if (max === min) {
+    h = 0;
+  } else {
     switch (max) {
       case r: h = (g - b) / d + (g < b ? 6 : 0); break;
       case g: h = (b - r) / d + 2; break;
@@ -76,6 +94,7 @@ const hexToHsv = (hex) => {
     }
     h /= 6;
   }
+
   return { h: h * 360, s: s * 100, v: v * 100 };
 };
 
