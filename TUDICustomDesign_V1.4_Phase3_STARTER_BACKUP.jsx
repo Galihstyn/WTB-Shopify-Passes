@@ -103,14 +103,16 @@ const hsvToHex = (h, s, v) => {
 };
 
 let measureCanvasCtx = null;
-const measureTextCache = {};
+const measureTextCache = new Map();
+const MAX_CACHE_SIZE = 1000;
+
 const measureTextWidth = (text, fontSize, fontFamily) => {
   const safeText = text || "";
   const safeFontSize = safeNum(fontSize, 32);
   const cacheKey = `${safeText}|${safeFontSize}|${fontFamily || 'Inter'}`;
 
-  if (measureTextCache[cacheKey] !== undefined) {
-    return measureTextCache[cacheKey];
+  if (measureTextCache.has(cacheKey)) {
+    return measureTextCache.get(cacheKey);
   }
 
   let result;
@@ -130,7 +132,11 @@ const measureTextWidth = (text, fontSize, fontFamily) => {
     result = safeText.length * safeFontSize * 0.6;
   }
 
-  measureTextCache[cacheKey] = result;
+  if (measureTextCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = measureTextCache.keys().next().value;
+    measureTextCache.delete(firstKey);
+  }
+  measureTextCache.set(cacheKey, result);
   return result;
 };
 
