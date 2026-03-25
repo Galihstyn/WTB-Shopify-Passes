@@ -489,7 +489,7 @@ export default function App() {
   const [marquee, setMarquee] = useState(null);
   const [showShapeMenu, setShowShapeMenu] = useState(false);
   const [currentShape, setCurrentShape] = useState("rect");
-  const [statusMsg, setStatusMsg] = useState(""); // Toast status message  
+  const [statusMsg, setStatusMsg] = useState(""); // Toast status message
   const [submitStatus, setSubmitStatus] = useState("idle");
 
   // States for Auto-Shrink Panels
