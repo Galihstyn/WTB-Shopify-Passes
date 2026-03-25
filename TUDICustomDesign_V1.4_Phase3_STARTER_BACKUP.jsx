@@ -104,7 +104,7 @@ const hsvToHex = (h, s, v) => {
 
 let measureCanvasCtx = null;
 const measureTextCache = new Map();
-const MAX_CACHE_SIZE = 1000;
+const MAX_CACHE_SIZE = 500;
 
 const measureTextWidth = (text, fontSize, fontFamily) => {
   const safeText = text || "";
