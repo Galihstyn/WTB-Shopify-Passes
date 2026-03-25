@@ -103,9 +103,17 @@ const hsvToHex = (h, s, v) => {
 };
 
 let measureCanvasCtx = null;
+const measureTextCache = {};
 const measureTextWidth = (text, fontSize, fontFamily) => {
   const safeText = text || "";
   const safeFontSize = safeNum(fontSize, 32);
+  const cacheKey = `${safeText}|${safeFontSize}|${fontFamily || 'Inter'}`;
+
+  if (measureTextCache[cacheKey] !== undefined) {
+    return measureTextCache[cacheKey];
+  }
+
+  let result;
   if (!measureCanvasCtx && typeof document !== "undefined") {
     const canvas = document.createElement("canvas");
     measureCanvasCtx = canvas.getContext("2d");
@@ -117,9 +125,13 @@ const measureTextWidth = (text, fontSize, fontFamily) => {
     lines.forEach(line => {
       try { maxWidth = Math.max(maxWidth, measureCanvasCtx.measureText(line).width); } catch (e) { maxWidth = safeText.length * safeFontSize * 0.6; }
     });
-    return maxWidth;
+    result = maxWidth;
+  } else {
+    result = safeText.length * safeFontSize * 0.6;
   }
-  return safeText.length * safeFontSize * 0.6;
+
+  measureTextCache[cacheKey] = result;
+  return result;
 };
 
 const getWarpMetrics = (el) => {
