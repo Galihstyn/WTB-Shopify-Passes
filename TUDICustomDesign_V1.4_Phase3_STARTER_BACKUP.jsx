@@ -47,21 +47,21 @@ const safeNum = (val, fallback = 0) => {
   return (isNaN(num) || !isFinite(num)) ? fallback : num;
 };
 
-const hexToHsv = (hex) => {
-  // Bug 9 fix: normalize input to handle missing # and short forms
+const hexToRgb = (hex) => {
   hex = (hex || '#000000').trim();
   if (!hex.startsWith('#')) hex = '#' + hex;
-  if (hex.length === 4) hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
-  let r = 0, g = 0, b = 0;
   if (hex.length === 4) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
-  } else if (hex.length === 7) {
-    r = parseInt(hex.substring(1, 3), 16);
-    g = parseInt(hex.substring(3, 5), 16);
-    b = parseInt(hex.substring(5, 7), 16);
+    hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
   }
+  return {
+    r: parseInt(hex.substring(1, 3), 16) || 0,
+    g: parseInt(hex.substring(3, 5), 16) || 0,
+    b: parseInt(hex.substring(5, 7), 16) || 0
+  };
+};
+
+const hexToHsv = (hex) => {
+  let { r, g, b } = hexToRgb(hex);
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
   let h, s, v = max;
@@ -384,15 +384,9 @@ const CustomIntegratedPicker = ({ activeColor, onColorChange }) => {
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2">
-        {['r', 'g', 'b'].map((key) => {
-          const rgb = (() => {
-            const hex = activeColor || "#000000";
-            let r, g, b;
-            if (hex.length === 7) { r = parseInt(hex.slice(1, 3), 16); g = parseInt(hex.slice(3, 5), 16); b = parseInt(hex.slice(5, 7), 16); }
-            else { r = parseInt(hex[1] + hex[1], 16); g = parseInt(hex[2] + hex[2], 16); b = parseInt(hex[3] + hex[3], 16); }
-            return { r, g, b };
-          })();
-          return (
+        {(() => {
+          const rgb = hexToRgb(activeColor);
+          return ['r', 'g', 'b'].map((key) => (
             <div key={key} className="flex flex-col gap-1 items-center">
               <input type="number" min="0" max="255" value={rgb[key]} onChange={(e) => {
                 const val = Math.max(0, Math.min(255, parseInt(e.target.value) || 0));
@@ -402,8 +396,8 @@ const CustomIntegratedPicker = ({ activeColor, onColorChange }) => {
               }} className="w-full bg-slate-800 text-white text-[10px] text-center p-1.5 rounded border border-slate-700 outline-none focus:border-indigo-500" />
               <span className="text-[8px] font-bold text-slate-500 uppercase">{key}</span>
             </div>
-          );
-        })}
+          ));
+        })()}
       </div>
     </div>
   );
